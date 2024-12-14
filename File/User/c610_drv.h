@@ -13,6 +13,7 @@
 
 typedef struct
 {
+    uint8_t en_input;       // 使能输入 0x01=使能输入
     float dt;               // 采样周期 s
     float current_ref;      // 电流目标值 A
     float speed_fbk;        // 电机减速器输出轴转速 rad/s

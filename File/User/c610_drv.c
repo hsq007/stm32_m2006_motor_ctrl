@@ -9,6 +9,7 @@ void C610_DRV_init(C610_DRV_DRV_h h, uint8_t idx, float gear_ratio, int16_t si_n
     h->siNumber = si_num;
     h->siNumber_div = 1.0f / (float)h->siNumber;
     h->siGearRatio_div = 1.0f / (float)h->siGearRatio;
+    h->en_input = 0x01;
 }
 
 /**
@@ -55,7 +56,10 @@ void C610_DRV_DRV_tx_step(C610_DRV_DRV_h h)
  * **/
 void C610_DRV_set_current_ref(C610_DRV_DRV_h h, float current_ref)
 {
-    h->current_ref = current_ref;
+    if(h->en_input)
+    {
+        h->current_ref = current_ref;
+    }
 }
 
 int16_t C610_DRV_get_current_cmd(C610_DRV_DRV_h h)
