@@ -428,6 +428,16 @@
               <FileType>1</FileType>
               <FilePath>..\File\BSP\timer.c</FilePath>
             </File>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\BSP\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>rtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\BSP\rtt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -534,6 +544,9 @@
               <FilePath>..\STM32_Lib\FWLib\stm32f10x_usart.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>New Group</GroupName>
         </Group>
       </Groups>
     </Target>

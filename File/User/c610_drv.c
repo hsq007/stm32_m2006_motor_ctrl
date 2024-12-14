@@ -1,5 +1,5 @@
 #include "c610_drv.h"
-
+#include "rtt.h"
 
 // 初始化电机参数
 void C610_DRV_init(C610_DRV_DRV_h h, uint8_t idx, float gear_ratio, int16_t si_num)
@@ -39,13 +39,14 @@ void C610_DRV_rx_step(C610_DRV_DRV_h h, float dt, uint32_t message_id,  uint8_t 
     h->pos_fbk_2 = 360.0f * (float)h->siRawValue * h->siNumber_div * h->siGearRatio_div;
     h->speed_fbk_rpm_2 = h->siSpeed * h->siGearRatio_div;
     h->speed_fbk_2 = h->speed_fbk_rpm * HSQ_MATH_K_RPM2RADPS * h->siGearRatio_div;
+
+    // 打印波形
+    rtt_scope_write(h->siCurrent, h->siSpeed, h->siRawValue, 0x00, 0x00, 0x00);
 }
 
 
 /**
  * 把电流指令解析为CAN报文格式
- * data_high 高八位电流
- * data_low 低八位电流
  * **/
 void C610_DRV_DRV_tx_step(C610_DRV_DRV_h h)
 {
