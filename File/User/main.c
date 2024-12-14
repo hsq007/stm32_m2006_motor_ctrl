@@ -10,6 +10,7 @@
 #include "c610_drv.h"
 #include "bsp_init.h"
 #include "hsq_math.h"
+#include "stdio.h"
 
 C610_DRV_DRV_t g_C610_DRV_drv;
 
@@ -17,6 +18,11 @@ int main(void)
 {
     BSP_Iinitialization();
     C610_DRV_init(&g_C610_DRV_drv, 0x01, 32.0f, 8192u);
+    printf("bsp init ok!\r\n");
+    printf("bsp init ok!\r\n");
+    printf("bsp init ok!\r\n");
+    printf("bsp init ok!\r\n");
+    
     while(1)
     {
         ;
