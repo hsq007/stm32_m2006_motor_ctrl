@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-14 22:21:31
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-14 23:55:14
+ * @LastEditTime: 2024-12-15 00:44:35
  * @FilePath: \20241214-M2006电机实验\File\User\c610.h
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -16,10 +16,18 @@ typedef struct
     uint8_t en_input;       // 使能输入 0x01=使能输入
     float dt;               // 采样周期 s
     float current_ref;      // 电流目标值 A
-    float speed_fbk;        // 电机减速器输出轴转速 rad/s
-    float speed_fbk_rpm;    // 电机减速器输出轴转速 rpm
-	float current_fbk;      // 电机电流反馈 A
-    float pos_fbk;          // 电机当前机械位置 deg
+
+    float current_fbk;      // 电机电流反馈 A
+
+    // 减速箱前的参数
+    float speed_fbk;        // 减速箱前的转速 rad/s
+    float speed_fbk_rpm;    // 减速箱前的转速 rpm
+    float pos_fbk;          // 减速箱前的机械位置 deg
+
+    // 减速箱后的参数
+    float speed_fbk_2;        // 减速箱后的转速 rad/s
+    float speed_fbk_rpm_2;    // 减速箱后的转速 rpm
+    float pos_fbk_2;          // 减速箱后的机械位置 deg
 
     // 配置参数
     uint8_t idx;            // 电调的ID，1/2/3/4

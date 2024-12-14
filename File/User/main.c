@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-09 22:36:44
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-14 23:59:19
+ * @LastEditTime: 2024-12-15 00:38:19
  * @FilePath: \20241214-M2006电机实验\File\User\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -27,21 +27,22 @@ int main(void)
  * std_id 发送的CAN_ID，对于1/2/3/4电机为0x200
  * cmd_mx 第1/2/3/4电机的电流指令值 -10000~10000对于-10~+10A
  * **/
-CanRxMsg g_rx_message;
+CanTxMsg g_tx_message;
 void CAN_send_current_cmd(uint32_t std_id, int16_t cmd_m1, int16_t cmd_m2, int16_t cmd_m3, int16_t cmd_m4)
 {
-    g_rx_message.StdId = std_id;
-    g_rx_message.IDE = CAN_Id_Standard;
-    g_rx_message.RTR = CAN_RTR_Data;
-    g_rx_message.DLC = 0x08;
-    g_rx_message.Data[0] = (uint8_t)(cmd_m1 >> 0x08);
-    g_rx_message.Data[1] = (uint8_t) cmd_m1;
-    g_rx_message.Data[2] = (uint8_t)(cmd_m2 >> 0x08);
-    g_rx_message.Data[3] = (uint8_t) cmd_m2;
-    g_rx_message.Data[4] = (uint8_t)(cmd_m3 >> 0x08);
-    g_rx_message.Data[5] = (uint8_t) cmd_m3;
-    g_rx_message.Data[6] = (uint8_t)(cmd_m4 >> 0x08);
-    g_rx_message.Data[7] = (uint8_t) cmd_m4;
+    g_tx_message.StdId = std_id;
+    g_tx_message.IDE = CAN_Id_Standard;
+    g_tx_message.RTR = CAN_RTR_Data;
+    g_tx_message.DLC = 0x08;
+    g_tx_message.Data[0] = (uint8_t)(cmd_m1 >> 0x08);
+    g_tx_message.Data[1] = (uint8_t) cmd_m1;
+    g_tx_message.Data[2] = (uint8_t)(cmd_m2 >> 0x08);
+    g_tx_message.Data[3] = (uint8_t) cmd_m2;
+    g_tx_message.Data[4] = (uint8_t)(cmd_m3 >> 0x08);
+    g_tx_message.Data[5] = (uint8_t) cmd_m3;
+    g_tx_message.Data[6] = (uint8_t)(cmd_m4 >> 0x08);
+    g_tx_message.Data[7] = (uint8_t) cmd_m4;
+    CAN_Transmit(CAN1, &g_tx_message);
 }
 
 
@@ -50,7 +51,7 @@ void CAN_send_current_cmd(uint32_t std_id, int16_t cmd_m1, int16_t cmd_m2, int16
 函数功能：CAN1接收中断
 备    注：处理电调反馈数据
 */
-CanTxMsg g_g_rx_message;
+CanRxMsg g_rx_message;
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
   if (CAN_GetITStatus(CAN1,CAN_IT_FMP0)!= RESET) 

@@ -32,9 +32,13 @@ void C610_DRV_rx_step(C610_DRV_DRV_h h, float dt, uint32_t message_id,  uint8_t 
     }
     // 换算为实际的单位
     h->current_fbk = 0.001f * h->siCurrent;
-    h->pos_fbk = 360.0f * (float)h->siRawValue * h->siNumber_div * h->siGearRatio_div;
+    h->pos_fbk = 360.0f * (float)h->siRawValue * h->siNumber_div;
     h->speed_fbk_rpm = h->siSpeed;
     h->speed_fbk = h->speed_fbk_rpm * HSQ_MATH_K_RPM2RADPS;
+
+    h->pos_fbk_2 = 360.0f * (float)h->siRawValue * h->siNumber_div * h->siGearRatio_div;
+    h->speed_fbk_rpm_2 = h->siSpeed * h->siGearRatio_div;
+    h->speed_fbk_2 = h->speed_fbk_rpm * HSQ_MATH_K_RPM2RADPS * h->siGearRatio_div;
 }
 
 
