@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-09 22:36:44
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-15 00:38:19
+ * @LastEditTime: 2024-12-15 21:10:57
  * @FilePath: \20241214-M2006电机实验\File\User\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,17 +11,20 @@
 #include "bsp_init.h"
 #include "hsq_math.h"
 #include "stdio.h"
+#include "freq_scan.h"
+#include "tf_2rd.h"
 
-C610_DRV_DRV_t g_C610_DRV_drv;
+#define MAIN_LOG(format, ...) printf("[MAIN]" format"\r\n", ##__VA_ARGS__)
 
 int main(void)
 {
     BSP_Iinitialization();
-    C610_DRV_init(&g_C610_DRV_drv, 0x01, 32.0f, 8192u);
-    printf("bsp init ok!\r\n");
-    printf("bsp init ok!\r\n");
-    printf("bsp init ok!\r\n");
-    printf("bsp init ok!\r\n");
+    C610_DRV_init();
+    FREQ_SCAN_init();
+    MAIN_LOG("bsp init ok!");
+    MAIN_LOG("bsp init ok!");
+    MAIN_LOG("bsp init ok!");
+    MAIN_LOG("bsp init ok!");
     
     while(1)
     {
@@ -65,11 +68,20 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
         CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
         CAN_Receive(CAN1, CAN_FIFO0, &g_rx_message);
         // 解析电调反馈数据
-        C610_DRV_rx_step(&g_C610_DRV_drv, 0.001f, g_rx_message.StdId, g_rx_message.Data);
+        C610_DRV_rx_step(0.001f, g_rx_message.StdId, g_rx_message.Data);
         // 发送电调电流指令
-        C610_DRV_DRV_tx_step(&g_C610_DRV_drv);
-        int16_t cmd_m1 = C610_DRV_get_current_cmd(&g_C610_DRV_drv);
+        C610_DRV_tx_step();
+        int16_t cmd_m1 = C610_DRV_get_current_cmd();
         CAN_send_current_cmd(0x200, cmd_m1, 0x00, 0x00, 0x00);
+        // 扫频
+        float speed = C610_DRV_get_speed();
+        FREQ_SCAN_set_output(speed);
+        FREQ_SCAN_step(0.001f);
+        float input = FREQ_SCAN_get_input();
+        C610_DRV_set_current_ref(input);
+        // 系统辨识结果
+        float current_ref = C610_DRV_get_current_ref();
+        TF_2RD_step(0.001f, current_ref);
     }
 }
 
@@ -83,7 +95,6 @@ void TIM2_IRQHandler(void)
 {
     if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
     {
-        TIM_ClearITPendingBit(TIM2, TIM_IT_Update  );
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
     }
 }
-
