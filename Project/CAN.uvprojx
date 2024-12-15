@@ -389,6 +389,11 @@
               <FilePath>..\File\User\main.c</FilePath>
             </File>
             <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\User\pid.c</FilePath>
+            </File>
+            <File>
               <FileName>tf_2rd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\File\User\tf_2rd.c</FilePath>

@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-09 22:36:44
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-15 21:10:57
+ * @LastEditTime: 2024-12-15 21:43:34
  * @FilePath: \20241214-M2006电机实验\File\User\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -13,6 +13,7 @@
 #include "stdio.h"
 #include "freq_scan.h"
 #include "tf_2rd.h"
+#include "pid.h"
 
 #define MAIN_LOG(format, ...) printf("[MAIN]" format"\r\n", ##__VA_ARGS__)
 
@@ -82,6 +83,8 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
         // 系统辨识结果
         float current_ref = C610_DRV_get_current_ref();
         TF_2RD_step(0.001f, current_ref);
+        // PID 控制速度环
+        float pid_u = PID_step(0.001f, 0.0f, speed);
     }
 }
 

@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-15 15:58:55
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-15 21:04:50
+ * @LastEditTime: 2024-12-15 21:16:36
  * @FilePath: \20241214-M2006电机实验\File\User\freq_scan.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -81,7 +81,7 @@ void FREQ_SCAN_init(void)
 {
     FREQ_SCAN_h h = &g_freq_can;
     h->freq_start = powf(10.0f, h->x_0);
-    h->freq_start = powf(10.0f, h->x_1);
+    h->freq_stop = powf(10.0f, h->x_1);
     h->out_max = -100.0f;
     h->out_min = 100.0f;
 }
