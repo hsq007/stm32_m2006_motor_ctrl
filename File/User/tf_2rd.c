@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-15 20:50:21
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-15 21:02:39
+ * @LastEditTime: 2024-12-15 22:26:51
  * @FilePath: \20241214-M2006电机实验\File\User\tf.c
  * @Description: 有两个延迟的脉冲传递函数实现
  */
@@ -31,16 +31,27 @@ TF_2RD_t g_tf_2rd = {
 };
 
 
-float TF_2RD_step(float dt, float r)
+float TF_2RD_step(float dt)
 {
     TF_2RD_h h = &g_tf_2rd;
-    h->r = r;
     h->u = h->num[0] * h->r + h->num[1]*h->r_pre + h->num[2]*h->r_pre2
     - h->den[1] * h->u_pre - h->den[2] * h->u_pre2;
     h->r_pre2 = h->r_pre;
     h->r_pre = h->r;
     h->u_pre2 = h->u_pre;
     h->u_pre = h->u;
+    return h->u;
+}
+
+void TF_2RD_set_input(float input)
+{
+    TF_2RD_h h = &g_tf_2rd;
+    h->r = input;
+}
+
+float TF_2RD_get_out(void)
+{
+    TF_2RD_h h = &g_tf_2rd;
     return h->u;
 }
 
