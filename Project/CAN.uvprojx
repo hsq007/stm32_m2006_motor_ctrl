@@ -389,9 +389,9 @@
               <FilePath>..\File\User\main.c</FilePath>
             </File>
             <File>
-              <FileName>pid.c</FileName>
+              <FileName>motor_ctrl.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\File\User\pid.c</FilePath>
+              <FilePath>..\File\User\motor_ctrl.c</FilePath>
             </File>
             <File>
               <FileName>tf_2rd.c</FileName>
@@ -404,9 +404,9 @@
               <FilePath>..\File\User\freq_scan.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f10x_it.c</FileName>
+              <FileName>pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\File\User\stm32f10x_it.c</FilePath>
+              <FilePath>..\File\User\pid.c</FilePath>
             </File>
             <File>
               <FileName>c610_drv.c</FileName>
@@ -417,6 +417,11 @@
               <FileName>hsq_math.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\File\User\hsq_math.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f10x_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\User\stm32f10x_it.c</FilePath>
             </File>
           </Files>
         </Group>

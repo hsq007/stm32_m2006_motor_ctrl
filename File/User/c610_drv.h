@@ -19,6 +19,7 @@ float C610_DRV_get_speed(void);
 float C610_DRV_get_pos(void);
 void C610_DRV_set_current_ref(float current_ref);
 float C610_DRV_get_current_ref(void);
+void CAN_send_current_cmd(uint32_t std_id, int16_t cmd_m1, int16_t cmd_m2, int16_t cmd_m3, int16_t cmd_m4);
 
 #endif
 

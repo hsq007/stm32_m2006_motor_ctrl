@@ -1,5 +1,7 @@
 #include "c610_drv.h"
 #include "rtt.h"
+#include "stm32f10x.h"
+#include "hsq_math.h"
 
 //#define RTT_SCOPR_USE
 
@@ -88,6 +90,28 @@ void C610_DRV_rx_step(float dt, uint32_t message_id,  uint8_t data[])
     #ifdef RTT_SCOPR_EN
     rtt_scope_write(h->siCurrent, h->siSpeed, h->siRawValue, 0x00, 0x00, 0x00);
     #endif
+}
+
+/**
+ * std_id 发送的CAN_ID，对于1/2/3/4电机为0x200
+ * cmd_mx 第1/2/3/4电机的电流指令值 -10000~10000对于-10~+10A
+ * **/
+CanTxMsg g_tx_message;
+void CAN_send_current_cmd(uint32_t std_id, int16_t cmd_m1, int16_t cmd_m2, int16_t cmd_m3, int16_t cmd_m4)
+{
+    g_tx_message.StdId = std_id;
+    g_tx_message.IDE = CAN_Id_Standard;
+    g_tx_message.RTR = CAN_RTR_Data;
+    g_tx_message.DLC = 0x08;
+    g_tx_message.Data[0] = (uint8_t)(cmd_m1 >> 0x08);
+    g_tx_message.Data[1] = (uint8_t) cmd_m1;
+    g_tx_message.Data[2] = (uint8_t)(cmd_m2 >> 0x08);
+    g_tx_message.Data[3] = (uint8_t) cmd_m2;
+    g_tx_message.Data[4] = (uint8_t)(cmd_m3 >> 0x08);
+    g_tx_message.Data[5] = (uint8_t) cmd_m3;
+    g_tx_message.Data[6] = (uint8_t)(cmd_m4 >> 0x08);
+    g_tx_message.Data[7] = (uint8_t) cmd_m4;
+    CAN_Transmit(CAN1, &g_tx_message);
 }
 
 
