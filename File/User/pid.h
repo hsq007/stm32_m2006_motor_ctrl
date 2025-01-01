@@ -33,7 +33,7 @@ typedef struct{
     float u_kp; 
     float u_ki;
     float u_kd;
-    float ref_pre;
+    float err_pre;
     float u_kd_pre;
 }PID_t, *PID_h;
 
