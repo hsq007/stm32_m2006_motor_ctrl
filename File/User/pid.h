@@ -34,9 +34,7 @@ typedef struct{
     float u_ki;
     float u_kd;
     float ref_pre;
-    float ref_pre2;
-    float u_pre;
-    float u_pre2;
+    float u_kd_pre;
 }PID_t, *PID_h;
 
 float PID_step(PID_h h, float dt, float ref, float fbk);

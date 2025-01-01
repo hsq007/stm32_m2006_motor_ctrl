@@ -2,7 +2,7 @@
  * @Author: hsq007 2267222816@qq.com
  * @Date: 2024-12-09 22:36:44
  * @LastEditors: hsq007 2267222816@qq.com
- * @LastEditTime: 2024-12-15 22:32:31
+ * @LastEditTime: 2024-12-16 02:29:02
  * @FilePath: \20241214-M2006电机实验\File\User\main.c
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,27 +15,50 @@
 #include "tf_2rd.h"
 #include "pid.h"
 
+
+PID_t g_pid_p = {.kp = 1.0f,.ki = 0.0f,.kd = 0.0f,.filter_n = 0.0f};
+PID_t g_pid_i = {.kp = 0.0f,.ki = 1.0f,.kd = 0.0f,.filter_n = 0.0f};
+PID_t g_pid_d = {.kp = 0.0f,.ki = 0.0f,.kd = 1.0f,.filter_n = 10.0f};
+float ref = 1.0f;
+int main_2(void)
+{
+    while(1)
+    {
+        PID_step(&g_pid_p, 0.001f, ref, 0.0f);
+        PID_step(&g_pid_i, 0.001f, ref, 0.0f);
+        PID_step(&g_pid_d, 0.001f, ref, 0.0f);
+//        delay_ms(1);
+    }
+}
+
 #define MAIN_LOG(format, ...) printf("[MAIN]" format"\r\n", ##__VA_ARGS__)
 
+#define SPEED_PID_KP (0.00509732584143159F)
+#define SPEED_PID_KI (0.108604567917919F)
+#define SPEED_PID_KD (1.90224160971236e-05)
+#define SPEED_PID_N  (321.919119694805F)
+
 PID_t g_pid = {
-    .kp = 0.00104054075367254f,
-    .ki = 0.0024389735126706f,
-    .kd = -3.69751883925614e-07f,
+    .kp = SPEED_PID_KP,
+    .ki = SPEED_PID_KI,
+    .kd = SPEED_PID_KD,
+    .filter_n = SPEED_PID_N,
     .en_fbk = 0x01,
     .en_input = 0x01,
-    .filter_n = 1168.5480545894f,
     .u_max = 2.0f,
 };
 
 PID_t g_pid_2 = {
-    .kp = 0.00104054075367254f,
-    .ki = 0.0024389735126706f,
-    .kd = -3.69751883925614e-07f,
+    .kp = SPEED_PID_KP,
+    .ki = SPEED_PID_KI,
+    .kd = SPEED_PID_KD,
+    .filter_n = SPEED_PID_N,
     .en_fbk = 0x01,
     .en_input = 0x01,
-    .filter_n = 1168.5480545894f,
     .u_max = 2.0f,
 };
+
+
 
 int main(void)
 {
@@ -82,7 +105,7 @@ void CAN_send_current_cmd(uint32_t std_id, int16_t cmd_m1, int16_t cmd_m2, int16
 备    注：处理电调反馈数据
 */
 CanRxMsg g_rx_message;
-float speed_ref = 1000.0f;
+float speed_ref = 0.0f;
 void USB_LP_CAN1_RX0_IRQHandler(void)
 {
   if (CAN_GetITStatus(CAN1,CAN_IT_FMP0)!= RESET) 
@@ -95,6 +118,7 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
         C610_DRV_tx_step();
         int16_t cmd_m1 = C610_DRV_get_current_cmd();
         CAN_send_current_cmd(0x200, cmd_m1, 0x00, 0x00, 0x00);
+        
         // 扫频
         float speed_fbk = C610_DRV_get_speed();
         FREQ_SCAN_set_output(speed_fbk);
@@ -104,13 +128,15 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
         TF_2RD_step(0.001f);
         
         // PID 控制实际电机的速度环
-        // float pid_u = FREQ_SCAN_get_input();
+        // float scan_u = FREQ_SCAN_get_input();
         float pid_u = PID_step(&g_pid, 0.001f, speed_ref, speed_fbk);
         C610_DRV_set_current_ref(pid_u);
 
         // PID 控制辨识的速度环模型
         float speed_est = TF_2RD_get_out();
         float pid_u2 = PID_step(&g_pid_2, 0.001f, speed_ref, speed_est);
+
+        float c610_ref = C610_DRV_get_current_ref();
         TF_2RD_set_input(pid_u2);
         
     }

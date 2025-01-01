@@ -9,7 +9,7 @@
 
 #include "pid.h"
 
-float PID_step(PID_h h, float dt, float ref, float fbk)
+float PID_step_2(PID_h h, float dt, float ref, float fbk)
 {
     h->dt = dt;
     if(h->en_input)
@@ -34,13 +34,30 @@ float PID_step(PID_h h, float dt, float ref, float fbk)
         h->u_ki = 0.0f;
     }
     
-    h->u_kd = h->kd * h->filter_n * (h->ref - h->ref_pre) - (h->filter_n * h->dt -1.0f) * h->u_pre;
+    h->u_kd = h->kd * h->filter_n * (h->ref - h->ref_pre) - (h->filter_n * h->dt -1.0f) * h->u_kd_pre;
     h->u = h->u_kp + h->u_ki + h->u_kd;
 
     // 历史值
-    h->ref_pre2 = h->ref_pre;
     h->ref_pre = h->ref;
-    h->u_pre2 = h->u_pre;
-    h->u_pre = h->u;
+    h->u_kd_pre = h->u_kd;
+    return h->u;
+}
+
+
+float PID_step(PID_h h, float dt, float ref, float fbk)
+{
+    h->dt = dt;
+    h->ref = ref;
+    h->fbk = fbk;
+    h->err = h->ref - h->fbk;
+    h->u_kp = h->kp * h->err;
+    h->u_ki += h->ki * h->dt * h->err;
+    h->u_kd =  (1.0f - h->filter_n * h->dt) 
+            * h->u_kd_pre + h->kd * h->filter_n * (h->ref - h->ref_pre);
+    h->u = h->u_kp + h->u_ki + h->u_kd;
+
+    // 历史值
+    h->ref_pre = h->ref;
+    h->u_kd_pre = h->u_kd;
     return h->u;
 }
