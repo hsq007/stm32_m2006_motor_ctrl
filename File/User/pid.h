@@ -37,6 +37,7 @@ typedef struct{
     float u_kd_pre;
 }PID_t, *PID_h;
 
+void PID_init(PID_h h, float kp, float ki, float kd, float filter_n, float u_max);
 float PID_step(PID_h h, float dt, float ref, float fbk);
 
 #endif

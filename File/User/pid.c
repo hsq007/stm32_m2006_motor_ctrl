@@ -9,6 +9,17 @@
 
 #include "pid.h"
 
+void PID_init(PID_h h, float kp, float ki, float kd, float filter_n, float u_max)
+{
+    h->kp = kp;
+    h->ki = ki;
+    h->kd = kd;
+    h->filter_n = filter_n;
+    h->u_max = u_max;
+    h->en_input = 0x01;
+    h->en_fbk = 0x01;
+}
+
 float PID_step_2(PID_h h, float dt, float ref, float fbk)
 {
     h->dt = dt;

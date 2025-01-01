@@ -8,32 +8,19 @@
  */
 #include "tf_2rd.h"
 
-typedef struct 
+void TF_2RD_init(TF_2RD_h h, float num_0, float num_1, float num_2, float den_0, float den_1, float den_2)
 {
-    float dt; // 采样周期 s
-    float num[3]; // G(z)分子系数
-    float den[3]; // G(z)分母系数
-    float r; // 输入信号 r(k)
-    float u; // 输出信号 u(k)
-    float r_pre; // r(k-1)
-    float r_pre2; // r(k-2)
-    float u_pre;  // u(k-1)
-    float u_pre2; // u(k-2)
-}TF_2RD_t, *TF_2RD_h;
+    h->num[0] = num_0;
+    h->num[1] = num_1;
+    h->num[2] = num_2;
+    h->den[0] = den_0;
+    h->den[1] = den_1;
+    h->den[2] = den_2;
+}
 
-TF_2RD_t g_tf_2rd = {
-    .num[0] = 3.016159211107498f,
-    .num[1] = 6.032318422214996f,
-    .num[2] = 3.016159211107498f,
-    .den[0] = 1.0f,
-    .den[1] = -1.486886029717710f,
-    .den[2] = 0.487509692354036f,
-};
-
-
-float TF_2RD_step(float dt)
+float TF_2RD_step(TF_2RD_h h, float dt, float r)
 {
-    TF_2RD_h h = &g_tf_2rd;
+    h->r = r;
     h->u = h->num[0] * h->r + h->num[1]*h->r_pre + h->num[2]*h->r_pre2
     - h->den[1] * h->u_pre - h->den[2] * h->u_pre2;
     h->r_pre2 = h->r_pre;
@@ -43,15 +30,8 @@ float TF_2RD_step(float dt)
     return h->u;
 }
 
-void TF_2RD_set_input(float input)
+float TF_2RD_get_out(TF_2RD_h h)
 {
-    TF_2RD_h h = &g_tf_2rd;
-    h->r = input;
-}
-
-float TF_2RD_get_out(void)
-{
-    TF_2RD_h h = &g_tf_2rd;
     return h->u;
 }
 
