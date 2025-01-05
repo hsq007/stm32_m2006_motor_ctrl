@@ -22,7 +22,7 @@
 void BSP_Iinitialization(void)
 {
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置NVIC中断分组
-    TIM2_Configuration(100-1,3600-1);//72MHz/3600/100=200Hz
+    TIM2_Configuration(200-1,360-1);//72MHz/360/200=1000Hz
     CAN1_Configuration();
     USART1_Configuration();
     rtt_init();

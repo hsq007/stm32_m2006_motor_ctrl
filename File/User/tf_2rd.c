@@ -16,11 +16,15 @@ void TF_2RD_init(TF_2RD_h h, float num_0, float num_1, float num_2, float den_0,
     h->den[0] = den_0;
     h->den[1] = den_1;
     h->den[2] = den_2;
+    h->en_input = 0x01;
 }
 
 float TF_2RD_step(TF_2RD_h h, float dt, float r)
 {
-    h->r = r;
+    if(h->en_input)
+    {
+        h->r = r;
+    }
     h->u = h->num[0] * h->r + h->num[1]*h->r_pre + h->num[2]*h->r_pre2
     - h->den[1] * h->u_pre - h->den[2] * h->u_pre2;
     h->r_pre2 = h->r_pre;

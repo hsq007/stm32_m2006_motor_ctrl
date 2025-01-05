@@ -28,6 +28,8 @@ void TIM2_IRQHandler(void)
     if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
     {
         TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+        // 低频APP执行
+        app_1ms_task();
     }
 }
 
@@ -49,8 +51,6 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
         C610_DRV_tx_step();
         int16_t cmd_m1 = C610_DRV_get_current_cmd();
         CAN_send_current_cmd(0x200, cmd_m1, 0x00, 0x00, 0x00);
-        // 低频APP执行
-        app_1ms_task();
     }
 }
 

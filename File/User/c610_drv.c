@@ -8,6 +8,7 @@
 typedef struct
 {
     uint8_t en_input;       // 使能输入 0x01=使能输入
+    uint8_t update_zero;    // 更新零位
     float dt;               // 采样周期 s
     float current_ref;      // 电流目标值 A
 
@@ -23,6 +24,10 @@ typedef struct
     float speed_fbk_rpm_2;    // 减速箱后的转速 rpm
     float pos_fbk_2;          // 减速箱后的机械位置 deg
 
+    // 连续的位置反馈
+    float pos_fbk_sum;
+    float speed_fbk_sum;
+
     // 配置参数
     uint8_t idx;            // 电调的ID，1/2/3/4
     float siGearRatio;      // 电机减速器减速比
@@ -32,6 +37,8 @@ typedef struct
     uint32_t can_rx_id;     // CAN接收报文的ID
     int16_t siSpeed;        // 电调反馈的转速 rpm
     int16_t siRawValue;     // 本次编码器的原始值
+    int16_t siValue_pre;
+    int16_t siValue_det;
     float   siNumber_div;   // 编码器线数的倒数
     int16_t siCurrent;      // 电调反馈的电流原始值
     float   siGearRatio_div; // 减速比的倒数
@@ -85,6 +92,34 @@ void C610_DRV_rx_step(float dt, uint32_t message_id,  uint8_t data[])
     h->pos_fbk_2 = 360.0f * (float)h->siRawValue * h->siNumber_div * h->siGearRatio_div;
     h->speed_fbk_rpm_2 = h->siSpeed * h->siGearRatio_div;
     h->speed_fbk_2 = h->speed_fbk_rpm * HSQ_MATH_K_RPM2RADPS * h->siGearRatio_div;
+
+    int16_t si_det = (int16_t)h->siRawValue - (int16_t)h->siValue_pre;
+    int16_t siNumber_div_2 = h->siNumber/2u;
+    if(si_det > siNumber_div_2)
+    {
+        h->siValue_det = si_det - h->siNumber;
+    }
+    else if(si_det < -siNumber_div_2)
+    {
+        h->siValue_det = si_det + h->siNumber;
+    }
+    else
+    {
+        h->siValue_det = si_det;
+    }
+    if(0x00 == h->update_zero)
+    {
+        h->pos_fbk_sum = h->pos_fbk;
+        h->update_zero = 0x01;
+        h->siValue_det = 0x000; 
+    }
+    else
+    {
+        h->pos_fbk_sum += 360.0f * (float)h->siValue_det * h->siNumber_div;
+        h->speed_fbk_sum =  60.0F * (float)h->siValue_det * h->siNumber_div / h->dt;
+    }
+    h->siValue_pre = h->siRawValue;
+    
 
     // 打印波形
     #ifdef RTT_SCOPR_EN
@@ -163,4 +198,12 @@ float C610_DRV_get_pos(void)
 {
     C610_DRV_h h = &g_c610_drv;
     return h->pos_fbk;
+}
+
+
+// 获取连续的位置反馈
+float C610_DRV_get_pos_sum(void)
+{
+    C610_DRV_h h = &g_c610_drv;
+    return h->pos_fbk_sum;
 }

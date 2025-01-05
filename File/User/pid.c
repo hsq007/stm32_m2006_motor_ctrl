@@ -18,6 +18,7 @@ void PID_init(PID_h h, float kp, float ki, float kd, float filter_n, float u_max
     h->u_max = u_max;
     h->en_input = 0x01;
     h->en_fbk = 0x01;
+    h->en_output = 0x01;
 }
 
 float PID_step_2(PID_h h, float dt, float ref, float fbk)
@@ -51,7 +52,13 @@ float PID_step_2(PID_h h, float dt, float ref, float fbk)
     // 历史值
     h->err_pre = h->err;
     h->u_kd_pre = h->u_kd;
-    return h->u;
+
+    float ret = 0.0f;
+    if(h->en_output)
+    {
+        ret = h->u;
+    }
+    return ret;
 }
 
 

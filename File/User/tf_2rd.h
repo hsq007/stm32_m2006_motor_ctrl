@@ -13,6 +13,7 @@
 typedef struct 
 {
     float dt; // 采样周期 s
+    uint8_t en_input;
     float num[3]; // G(z)分子系数
     float den[3]; // G(z)分母系数
     float r; // 输入信号 r(k)

@@ -16,6 +16,7 @@ typedef struct{
     // 控制参数
     uint8_t en_input; // 0x01=使能输入
     uint8_t en_fbk; // 0x01=使能反馈
+    uint8_t en_output;
     float dt; // 控制周期 s
     float kp; // 比例
     float ki; // 积分
@@ -39,6 +40,7 @@ typedef struct{
 
 void PID_init(PID_h h, float kp, float ki, float kd, float filter_n, float u_max);
 float PID_step(PID_h h, float dt, float ref, float fbk);
+float PID_step_2(PID_h h, float dt, float ref, float fbk);
 
 #endif
 
