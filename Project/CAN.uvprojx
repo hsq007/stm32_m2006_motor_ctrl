@@ -389,34 +389,9 @@
               <FilePath>..\File\User\main.c</FilePath>
             </File>
             <File>
-              <FileName>motor_ctrl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\File\User\motor_ctrl.c</FilePath>
-            </File>
-            <File>
-              <FileName>tf_2rd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\File\User\tf_2rd.c</FilePath>
-            </File>
-            <File>
-              <FileName>freq_scan.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\File\User\freq_scan.c</FilePath>
-            </File>
-            <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\File\User\pid.c</FilePath>
-            </File>
-            <File>
               <FileName>erob_drv.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\File\User\erob_drv.c</FilePath>
-            </File>
-            <File>
-              <FileName>c610_drv.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\File\User\c610_drv.c</FilePath>
             </File>
             <File>
               <FileName>hsq_math.c</FileName>
@@ -427,11 +402,6 @@
               <FileName>stm32f10x_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\File\User\stm32f10x_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>integrator.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\File\User\integrator.c</FilePath>
             </File>
           </Files>
         </Group>
