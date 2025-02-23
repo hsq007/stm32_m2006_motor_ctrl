@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>m2006_ctrl</TargetName>
+      <TargetName>e_rob</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
@@ -407,6 +407,11 @@
               <FileName>pid.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\File\User\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>erob_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\User\erob_drv.c</FilePath>
             </File>
             <File>
               <FileName>c610_drv.c</FileName>

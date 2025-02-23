@@ -9,7 +9,7 @@
 #include "stm32f10x.h"
 #include "bsp_init.h"
 #include "stdio.h"
-#include "motor_ctrl.h"
+#include "erob_drv.h"
 
 #define MAIN_LOG(format, ...) printf("[MAIN]" format"\r\n", ##__VA_ARGS__)
 
@@ -17,11 +17,14 @@
 int main(void)
 {
     BSP_Iinitialization();
-    MOTOR_CTRL_init();
+    EROB_DRV_init();
     MAIN_LOG("bsp init ok!");
     MAIN_LOG("bsp init ok!");
     MAIN_LOG("bsp init ok!");
-    MAIN_LOG("bsp init ok!");
+    MAIN_LOG("start morot!");
+//    EROB_DRV_set_mode(EROB_DRV_MODE_SPD);
+//    EROB_DRV_set_ref(1.0f);
+//    EROB_DRV_set_motor_en(0x01);
     
     while(1)
     {
@@ -29,11 +32,10 @@ int main(void)
     }
 }
 
+
 // 这个线程不能被阻塞 1ms 执行一次
 void app_1ms_task(void)
 {
     float dt = 0.001f;
-    MOTRO_CTRL_step(dt);
-    MOTOR_SIMULATE_step(dt);
-    // MOTOR_SCAN_step(dt);
+    EROB_DRV_step(dt);
 }

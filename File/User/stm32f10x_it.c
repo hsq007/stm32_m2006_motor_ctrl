@@ -1,6 +1,9 @@
 #include "stm32f10x.h"
 #include "c610_drv.h"
-#include "motor_ctrl.h"
+#include "erob_drv.h"
+#include "stdio.h"
+
+#define CAN_LOG(format, ...) printf("[CAN]" format"\r\n", ##__VA_ARGS__)
 
 extern void app_1ms_task(void);
 
@@ -45,12 +48,7 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
     {
         CAN_ClearITPendingBit(CAN1, CAN_IT_FMP0);
         CAN_Receive(CAN1, CAN_FIFO0, &g_rx_message);
-        // 解析电调反馈数据
-        C610_DRV_rx_step(0.001f, g_rx_message.StdId, g_rx_message.Data);
-        // 发送电调电流指令
-        C610_DRV_tx_step();
-        int16_t cmd_m1 = C610_DRV_get_current_cmd();
-        CAN_send_current_cmd(0x200, cmd_m1, 0x00, 0x00, 0x00);
+        EROB_DRV_can_rx_callback(&g_rx_message);
     }
 }
 

@@ -1,8 +1,8 @@
 .vscode/
 /Project/CAN.uvguix.Administrator
-/Project/CAN.uvoptx
 /Project/Objects/
 /Project/Listings/TIM_IT.map
+*.uvoptx
 *.map
 *.txt
 *.scvd
