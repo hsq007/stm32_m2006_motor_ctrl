@@ -3,7 +3,6 @@
  * @Date: 2024-12-14 22:23:14
  * @LastEditors: hsq007 2267222816@qq.com
  * @LastEditTime: 2024-12-15 17:16:24
- * @FilePath: \20241214-M2006电机实验\File\User\hsq_math.c
  * @Description: 
  * 
  * Copyright (c) 2024 by ${git_name_email}, All Rights Reserved. 

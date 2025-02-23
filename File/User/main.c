@@ -1,3 +1,8 @@
+// 零差云控合作项目 谐波模组建模
+// 实现CAN自定义通信协议和重力补偿模型
+// 摩擦力模型正在开发中
+// 2025.02.23 by 黄胜全
+
 #include "stm32f10x.h"
 #include "bsp_init.h"
 #include "stdio.h"
@@ -15,6 +20,7 @@ int main(void)
     MAIN_LOG("bsp init ok!");
     MAIN_LOG("bsp init ok!");
     MAIN_LOG("start morot!");
+    //  开机后进调试模式手动设置
 //    EROB_DRV_set_mode(EROB_DRV_MODE_SPD);
 //    EROB_DRV_set_ref(1.0f);
 //    EROB_DRV_set_motor_en(0x01);
