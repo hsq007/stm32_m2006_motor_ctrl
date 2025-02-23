@@ -20,6 +20,8 @@ void EROB_DRV_can_rx_callback(CanRxMsg *message);
 void EROB_DRV_set_ref(float ref);
 void EROB_DRV_set_mode(ERBO_DRV_mode_e mode);
 void EROB_DRV_set_motor_en(uint8_t en);
+float EROB_DRV_get_angle(void);
+float EROB_DRV_get_speed(void);
 
 #endif
 

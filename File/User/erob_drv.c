@@ -309,36 +309,6 @@ void EROB_DRV_step(float dt)
     EROB_DRV_can_tx(h);
 }   
 
-// 设置电机工作模式
-void EROB_DRV_set_mode(ERBO_DRV_mode_e mode)
-{
-    EROB_DRV_h h = &g_erob_drv;
-    if(h->en_input)
-    {
-        h->mode = mode;
-    }
-}
-
-// 设置目标值
-void EROB_DRV_set_ref(float ref)
-{
-    EROB_DRV_h h = &g_erob_drv;
-    if(h->en_input)
-    {
-        h->ref = ref;
-    }
-}
-
-// 设置电机使能
-void EROB_DRV_set_motor_en(uint8_t en)
-{
-    EROB_DRV_h h = &g_erob_drv;
-    if(h->en_input)
-    {
-        h->motor_en = en;
-    }
-}
-
 
 void EROB_DRV_can_tx(EROB_DRV_h h)
 {
@@ -379,3 +349,49 @@ void EROB_DRV_can_rx_callback(CanRxMsg *message)
 }
 
 
+//----------- set
+// 设置电机工作模式
+void EROB_DRV_set_mode(ERBO_DRV_mode_e mode)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    if(h->en_input)
+    {
+        h->mode = mode;
+    }
+}
+
+// 设置目标值
+void EROB_DRV_set_ref(float ref)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    if(h->en_input)
+    {
+        h->ref = ref;
+    }
+}
+
+// 设置电机使能
+void EROB_DRV_set_motor_en(uint8_t en)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    if(h->en_input)
+    {
+        h->motor_en = en;
+    }
+}
+
+//------------ get
+
+// 获取输出轴角度 rad
+float EROB_DRV_get_angle(void)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    return h->angle;
+}
+
+// 获取输出轴转速 rad/s
+float EROB_DRV_get_speed(void)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    return h->speed;
+}
