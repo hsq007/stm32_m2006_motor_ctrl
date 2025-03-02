@@ -403,6 +403,11 @@
               <FileType>1</FileType>
               <FilePath>..\File\User\stm32f10x_it.c</FilePath>
             </File>
+            <File>
+              <FileName>lpf.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\User\lpf.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

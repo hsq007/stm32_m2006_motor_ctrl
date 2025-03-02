@@ -5,6 +5,7 @@
 
 #include "stdio.h"
 #include "erob_drv.h"
+#include "lpf.h"
 
 #define EROB_LOG(format, ...) printf("[EROB]" format"\r\n", ##__VA_ARGS__)
 
@@ -58,6 +59,7 @@ typedef struct
     uint8_t motor_en_pre;
     int32_t current_ref_pre;
     int32_t speed_ref_sim; // 速度目标值 线/s
+    ST_LPF  st_lpf_current; // 电流低通滤波
     // 数据解析
     int32_t speed_raw; // can接收的速度原始数据
     int32_t angle_raw; // can接收的位置原始数据
@@ -98,6 +100,7 @@ void EROB_DRV_init(void)
     h->k_radps2simps = 1.0f / HSQ_MATH_2PI * h->encoder_sim;
     h->mode = EROB_DRV_MODE_NONE;
     h->start = 0x01;
+    lpf_init(&h->st_lpf_current, 0.1f);
 }
 
 // 填充要发送的CAN报文
@@ -128,6 +131,7 @@ void EROB_DRV_step(float dt)
 {
     EROB_DRV_h h = &g_erob_drv;
     h->dt =dt;
+    lpf_step(&h->st_lpf_current, h->current, dt);
     if(h->can_tx_test && h->can_rx_flag)
     {
         EROB_LOG("[CAN_RX]%02x,%02x,%02x,%02x,%02x", h->can_rx_data[0], h->can_rx_data[1],h->can_rx_data[2],h->can_rx_data[3],h->can_rx_data[4]);
@@ -223,19 +227,22 @@ void EROB_DRV_step(float dt)
 
         case EROB_DRV_STATE_RX_SPD_ACK: // 解析转速反馈
         {
-            if((h->can_rx_flag)&&(h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+            if(h->can_rx_flag)
             {
                 h->can_rx_flag = 0x00;
-                h->speed_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
-                h->speed = h->speed_raw * h->encoder_sim_div * HSQ_MATH_2PI;
-                h->speed_rpm = h->speed * HSQ_MATH_K_RADPS2RPM;
-                h->state = EROB_DRV_STATE_RX_POS;
-            }
-            else
-            {
-                h->state = EROB_DRV_STATE_RX_SPD;
-                h->can_rx_err_cnt_speed ++;
-                EROB_LOG("read speed err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                if((h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+                {
+                    h->speed_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
+                    h->speed = h->speed_raw * h->encoder_sim_div * HSQ_MATH_2PI;
+                    h->speed_rpm = h->speed * HSQ_MATH_K_RADPS2RPM;
+                    h->state = EROB_DRV_STATE_RX_POS;
+                }
+                else
+                {
+                    h->state = EROB_DRV_STATE_RX_SPD;
+                    h->can_rx_err_cnt_speed ++;
+                    EROB_LOG("read speed err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                }
             }
             break;
         }
@@ -251,19 +258,22 @@ void EROB_DRV_step(float dt)
 
         case EROB_DRV_STATE_RX_POS_ACK: // 解析位置反馈
         {
-            if((h->can_rx_flag)&&(h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+            if(h->can_rx_flag)
             {
                 h->can_rx_flag = 0x00;
-                h->angle_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
-                h->angle = h->angle_raw * h->encoder_sim_div * HSQ_MATH_2PI;
-                h->angle_deg = h->angle * HSQ_MATH_K_RAD2DEG;
-                h->state = EROB_DRV_STATE_RX_CURRENT;
-            }
-            else
-            {
-                h->state = EROB_DRV_STATE_RX_POS;
-                h->can_rx_err_cnt_pos ++;
-                EROB_LOG("read angle err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                if((h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+                {
+                    h->angle_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
+                    h->angle = h->angle_raw * h->encoder_sim_div * HSQ_MATH_2PI;
+                    h->angle_deg = h->angle * HSQ_MATH_K_RAD2DEG;
+                    h->state = EROB_DRV_STATE_RX_CURRENT;
+                }
+                else
+                {
+                    h->state = EROB_DRV_STATE_RX_POS;
+                    h->can_rx_err_cnt_pos ++;
+                    EROB_LOG("read angle err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                }
             }
             break;
         }
@@ -278,23 +288,21 @@ void EROB_DRV_step(float dt)
 
         case EROB_DRV_STATE_RX_CURRENT_ACK: // 解析电流反馈
         {
-            if((h->can_rx_flag)&&(h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+            if(h->can_rx_flag)
             {
                 h->can_rx_flag = 0x00;
-                h->current_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
-                h->current = h->current_raw;
-                h->state = EROB_DRV_STATE_RX_TORQUE;
-                // //  h->state = EROB_DRV_STATE_TX_EN;
-                // if((h->current_ref > 0u)&&(h->current < 0u))
-                // {
-                //     EROB_LOG("err, current:%d, len:%d, %02x, %02x, %02x, %02x, %02x", h->current_raw, h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
-                // }
-            }
-            else
-            {
-                h->state = EROB_DRV_STATE_RX_CURRENT;
-                h->can_rx_err_cnt_current ++;
-                EROB_LOG("read current err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                if((h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+                {
+                    h->current_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
+                    h->current = h->current_raw;
+                    h->state = EROB_DRV_STATE_RX_TORQUE;
+                }
+                else
+                {
+                    h->state = EROB_DRV_STATE_RX_CURRENT;
+                    h->can_rx_err_cnt_current ++;
+                    EROB_LOG("read current err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                }
             }
             break;
         }
@@ -310,20 +318,23 @@ void EROB_DRV_step(float dt)
 
         case EROB_DRV_STATE_RX_TORQUE_ACK: // 解析扭矩数据
         {
-             if((h->can_rx_flag)&&(h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+            if(h->can_rx_flag)
             {
                 h->can_rx_flag = 0x00;
-                h->torque_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
-                h->torque = h->torque_raw;
-                h->angle_delta = h->torque_raw * h->encoder_sim_div * HSQ_MATH_2PI;
-                h->angle_delta_deg = h->angle_delta * HSQ_MATH_K_RAD2DEG;
-                h->state = EROB_DRV_STATE_TX_EN;
-            }
-            else
-            {
-                h->state = EROB_DRV_STATE_RX_TORQUE;
-                h->can_rx_err_cnt_torque ++;
-                EROB_LOG("read torque err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                if((h->can_rx_len == 0x05)&&(h->can_rx_data[4]== 0x3e))
+                {
+                    h->torque_raw = (int32_t)((h->can_rx_data[0] << 24) + (h->can_rx_data[1] << 16) + (h->can_rx_data[2] << 8) + h->can_rx_data[3]);
+                    h->torque = h->torque_raw;
+                    h->angle_delta = h->torque_raw * h->encoder_sim_div * HSQ_MATH_2PI;
+                    h->angle_delta_deg = h->angle_delta * HSQ_MATH_K_RAD2DEG;
+                    h->state = EROB_DRV_STATE_TX_EN;
+                }
+                else
+                {
+                    h->state = EROB_DRV_STATE_RX_TORQUE;
+                    h->can_rx_err_cnt_torque ++;
+                    EROB_LOG("read torque err, len:%d, %02x, %02x, %02x, %02x, %02x", h->can_rx_len, h->can_rx_data[0], h->can_rx_data[1], h->can_rx_data[2], h->can_rx_data[3], h->can_rx_data[4]);
+                }
             }
             break;
         }
@@ -447,4 +458,25 @@ float EROB_DRV_get_speed(void)
 {
     EROB_DRV_h h = &g_erob_drv;
     return h->speed;
+}
+
+// 获取电流值 mA
+float EROB_DRV_get_current(void)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    return h->current;
+}
+
+
+float EROB_DRV_get_speed_rpm(void)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    return h->speed_rpm;
+}
+
+// 获取双编码器角度差 deg
+float EROB_DRV_get_angle_det_deg(void)
+{
+    EROB_DRV_h h = &g_erob_drv;
+    return h->angle_delta_deg;
 }

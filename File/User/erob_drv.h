@@ -22,6 +22,9 @@ void EROB_DRV_set_mode(ERBO_DRV_mode_e mode);
 void EROB_DRV_set_motor_en(uint8_t en);
 float EROB_DRV_get_angle(void);
 float EROB_DRV_get_speed(void);
+float EROB_DRV_get_speed_rpm(void);
+float EROB_DRV_get_angle_det_deg(void);
+float EROB_DRV_get_current(void);
 
 #endif
 
