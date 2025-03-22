@@ -389,6 +389,11 @@
               <FilePath>..\File\User\main.c</FilePath>
             </File>
             <File>
+              <FileName>friction_identify.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\File\User\friction_identify.c</FilePath>
+            </File>
+            <File>
               <FileName>erob_drv.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\File\User\erob_drv.c</FilePath>

@@ -16,6 +16,7 @@ typedef enum
     EROB_DRV_STATE_TX_EN,
     EROB_DRV_STATE_TX_MODE,
     EROB_DRV_STATE_TX_CMD,
+    EROB_DRV_STATE_TX_SPD_LIMIT,
     EROB_DRV_STATE_TX_ACK,
     EROB_DRV_STATE_RX_SPD,
     EROB_DRV_STATE_RX_SPD_ACK,
@@ -53,6 +54,7 @@ typedef struct
     float speed_ref;  // 速度目标值 rad/s
     float speed_ref_rpm; // 速度目标值 rpm
     int32_t current_ref; // 电流目标值 mA
+    int32_t speed_limit_raw;
     // 记录
     EROB_DRV_state_e next_state; // 下一个状态
     ERBO_DRV_mode_e mode_pre; // 当前控制模式
@@ -100,6 +102,7 @@ void EROB_DRV_init(void)
     h->k_radps2simps = 1.0f / HSQ_MATH_2PI * h->encoder_sim;
     h->mode = EROB_DRV_MODE_NONE;
     h->start = 0x01;
+    h->speed_limit_raw = 520000;
     lpf_init(&h->st_lpf_current, 0.1f);
 }
 
@@ -198,7 +201,7 @@ void EROB_DRV_step(float dt)
                 h->current_ref = h->ref;
                 uint8_t en_data[6] = {0x01, 0xfe, (h->current_ref >> 24u)&0xff, (h->current_ref >> 16u)&0xff, (h->current_ref >> 0x08)&0xff, (h->current_ref & 0xFF)};
                 EROB_DRV_can_tx_load(h, 0x06, en_data);
-                EROB_DRV_state_wait_ack(h, EROB_DRV_STATE_RX_SPD);
+                EROB_DRV_state_wait_ack(h, EROB_DRV_STATE_TX_SPD_LIMIT);
                 h->current_ref_pre = h->current_ref;
             }
             else if(h->mode == EROB_DRV_MODE_SPD)
@@ -213,6 +216,22 @@ void EROB_DRV_step(float dt)
             else if(h->mode == EROB_DRV_MODE_POS)
             {
                 h->angle_ref = h->ref;
+            }
+            break;
+        }
+
+        case EROB_DRV_STATE_TX_SPD_LIMIT: // 设置电流目标值
+        {
+            if(h->mode == EROB_DRV_MODE_TORQUE)
+            {
+                int32_t data_raw = h->speed_limit_raw;
+                uint8_t sen_data[6] = {0x02, 0x04, (data_raw >> 24u)&0xff, (data_raw >> 16u)&0xff, (data_raw >> 0x08)&0xff, (data_raw & 0xFF)};
+                EROB_DRV_can_tx_load(h, 0x06, sen_data);
+                EROB_DRV_state_wait_ack(h, EROB_DRV_STATE_RX_SPD);
+            }
+            else
+            {
+                EROB_DRV_state_wait_ack(h, EROB_DRV_STATE_RX_SPD);
             }
             break;
         }
